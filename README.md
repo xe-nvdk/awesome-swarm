@@ -17,7 +17,7 @@ Docker Swarm is include in Docker. The only thing you need to "deploy" Docker Sw
 docker swarm init
 ```
 
-The above command will create a manager docker Swarm node. If this your first time playing with Docker Swarm, it's ok have one instance of Swarm running, but if you want to explode all their capabilities it's recommended create a cluster with at least one manager and two nodes.
+The above command will create a manager docker Swarm node. If this your first time playing with Docker Swarm, it's ok have one instance of Swarm running, but if you want to explode all their capabilities it's recommended create a cluster with at least one manager and two worker nodes.
 
 If you want add more workers to the cluster. You need to execute the following in each node:
 
