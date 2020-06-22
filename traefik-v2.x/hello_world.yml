@@ -1,0 +1,23 @@
+version: "3.3"
+
+services:
+
+  hello_world:
+    image: tutum/hello-world
+    networks:
+      - publica
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.hello.rule=Host(`your-url`)"
+        - "traefik.http.routers.hello.entrypoints=web"
+        - "traefik.http.routers.hello-secured.rule=Host(`your-url`)"
+        - "traefik.http.routers.hello-secured.entrypoints=websecure"
+        - "traefik.http.routers.hello-secured.tls.certresolver=leresolver"
+        - "traefik.http.services.hello.loadbalancer.server.port=80" # Siempre debemos definir un puerto.
+        - "traefik.http.routers.hello.middlewares=hello-redirect"
+        - "traefik.http.middlewares.hello-redirect.redirectscheme.scheme=https"
+
+networks:
+  publica:
+    external: true
