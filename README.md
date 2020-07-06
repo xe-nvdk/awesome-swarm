@@ -10,6 +10,7 @@ If you're contributing, please, don't forget to modify this table and add info a
 | Applications         | Description | Author |
 |----------------------|-------------|:------:|
 | [Traefik v2.x](traefik-v2.x/) | This recipe is good for run Traefik v2.x with HTTPS support and redirection | [Ignacio Van Droogenbroeck](https://github.com/xe-nvdk) |
+| [Swarmpit](swarmpit/) | Swarmpit is a UI for Docker Swarm cluster management | [Ignacio Van Droogenbroeck](https://github.com/xe-nvdk) |
   
 ## How start with Docker Swarm.
 Docker Swarm is include in Docker. The only thing you need to "deploy" Docker Swarm is execute the following command.
