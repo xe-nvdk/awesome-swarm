@@ -1,4 +1,4 @@
-## Swarmpit 
+## Portainer 
 This recipe allows you to run Portainer to manage your Docker Swarm Cluster.
 
 Project structure:
