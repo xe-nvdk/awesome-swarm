@@ -1,109 +1,67 @@
 ## Swarmpit 
-This recipe allows you to run Swarmpit to manage a Docker Swarm cluster
+This recipe allows you to run Portainer to manage your Docker Swarm Cluster.
 
 Project structure:
 ```
 .
-├── swarmpit.yml
+├── portainer.yml
 └── README.md
 ```
 
-[_swarmpit.yml_](swarmpit.yml)
+[_portainer.yml_](portainer.yml)
 ``` 
-version: '3.3'
+version: '3.2'
 
 services:
-  app:
-    image: swarmpit/swarmpit:latest
-    environment:
-      - SWARMPIT_DB=http://db:5984
-      - SWARMPIT_INFLUXDB=http://influxdb:8086
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    ports:
-      - 888:8080
-    networks:
-      - swarmpit_net
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 1024M
-        reservations:
-          cpus: '0.25'
-          memory: 512M
-      placement:
-        constraints:
-          - node.role == manager
-
-  db:
-    image: couchdb:2.3.0
-    volumes:
-      - ./couchdb:/opt/couchdb/data
-    networks:
-      - swarmpit_net
-    deploy:
-      resources:
-        limits:
-          cpus: '0.30'
-          memory: 256M
-        reservations:
-          cpus: '0.15'
-          memory: 128M
-
-  influxdb:
-    image: influxdb:1.8.0
-    volumes:
-      - ./influxdb:/var/lib/influxdb
-    networks:
-      - swarmpit_net
-    deploy:
-      resources:
-        limits:
-          cpus: '0.60'
-          memory: 512M
-        reservations:
-          cpus: '0.30'
-          memory: 128M
-
   agent:
-    image: swarmpit/agent:latest
+    image: portainer/agent
     environment:
-      - DOCKER_API_VERSION=1.35
+      # REQUIRED: Should be equal to the service name prefixed by "tasks." when
+      # deployed inside an overlay network
+      AGENT_CLUSTER_ADDR: tasks.agent
+      # AGENT_PORT: 9001
+      # LOG_LEVEL: debug
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
     networks:
-      - swarmpit_net
+      - agent_network
     deploy:
       mode: global
-      labels:
-        swarmpit.agent: 'true'
-      resources:
-        limits:
-          cpus: '0.10'
-          memory: 64M
-        reservations:
-          cpus: '0.05'
-          memory: 32M
+      placement:
+        constraints: [node.platform.os == linux]
+
+  portainer:
+    image: portainer/portainer
+    command: -H tcp://tasks.agent:9001 --tlsskipverify
+    ports:
+      - "9000:9000"
+      - "8000:8000"
+    volumes:
+      - data:/data
+    networks:
+      - agent_network
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
 
 networks:
-  swarmpit_net:
-    external: true
+  agent_network:
+    driver: overlay
+
+volumes:
+   data:
 
 ```
 # How to deploy this recipe
 
-First, you need to create a overlay network
 ```
-$ docker network create --driver=overlay swarmpit_net
-```
-
-```
-$ docker stack deploy -c swarmpit.yml swarmpit
-Creating service swarmpit_influxdb
-Creating service swarmpit_agent
-Creating service swarmpit_app
-Creating service swarmpit_db
+$ docker stack deploy portainer -c portainer.yml
+Creating network portainer_agent_network
+Creating service portainer_agent
+Creating service portainer_portainer
 ```
 
 ## Expected result
@@ -113,16 +71,14 @@ Check containers are running and the port mapping:
 ```
 $ docker service ls
 
-ID                  NAME                MODE                REPLICAS            IMAGE                      PORTS
-a2z3rlw1spyn        swarmpit_agent      global              1/1                 swarmpit/agent:latest      
-u696qiskvtjp        swarmpit_app        replicated          1/1                 swarmpit/swarmpit:latest   *:888->8080/tcp
-rnqjpissl16s        swarmpit_db         replicated          1/1                 couchdb:2.3.0              
-jkr1z6jddbyu        swarmpit_influxdb   replicated          1/1                 influxdb:1.8.0        
+ID                  NAME                  MODE                REPLICAS            IMAGE                        PORTS
+ngvbdywoej8o        portainer_agent       global              2/2                 portainer/agent:latest
+uq7zsmd5badq        portainer_portainer   replicated          1/1                 portainer/portainer:latest   *:8000->8000/tcp, *:9000->9000/tcp
 
 ```
 
 Stop and remove the containers
 
 ```
-$ docker stack rm swarmpit
+$ docker stack rm portainer
 ```
