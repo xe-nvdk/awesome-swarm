@@ -9,6 +9,7 @@ If you're contributing, please, don't forget to modify this table and add info a
 
 | Applications         | Description | Author |
 |----------------------|-------------|:------:|
+| [Portainer](portainer/) | Portainer is a solution to manager Docker, Swarm and Kubernetes clusters | [Ignacio Van Droogenbroeck](https://github.com/xe-nvdk) |
 | [Swarmpit](swarmpit/) | Swarmpit is a UI for Docker Swarm cluster management | [Ignacio Van Droogenbroeck](https://github.com/xe-nvdk) |
 | [Traefik v2.x](traefik-v2.x/) | This recipe is good for run Traefik v2.x with HTTPS support and redirection | [Ignacio Van Droogenbroeck](https://github.com/xe-nvdk) |
   
